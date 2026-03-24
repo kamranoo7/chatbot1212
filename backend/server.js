@@ -11,7 +11,7 @@ const app = express();
 /* ================= CORS CONFIG (VERY IMPORTANT) ================= */
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://your-vercel-app.vercel.app" // 🔥 replace after deploy
+  "https://chatbot1212-vkj9.vercel.app" // ✅ YOUR REAL URL
 ];
 
 app.use(cors({
