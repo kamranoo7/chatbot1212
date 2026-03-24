@@ -1,15 +1,23 @@
-const axios = require("axios");
-const Prompt = require("../model/Prompt");
+import axios from "axios";
 
-exports.askAI = async (req, res) => {
+export default async function handler(req, res) {
+  // ✅ ALWAYS SET CORS HEADERS
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+  // ✅ HANDLE PREFLIGHT
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  if (req.method !== "POST") {
+    return res.status(405).json({ message: "Method not allowed" });
+  }
+
   try {
     const { prompt } = req.body;
 
-    if (!prompt) {
-      return res.status(400).json({ message: "Prompt is required" });
-    }
-
-    
     const response = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",
       {
@@ -19,47 +27,34 @@ exports.askAI = async (req, res) => {
       {
         headers: {
           Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          "HTTP-Referer": "http://localhost:3000",
-          "X-Title": "AI Flow App",
           "Content-Type": "application/json",
         },
-        timeout: 10000 // 🔥 10 seconds
       }
     );
 
-    console.log("FULL AI RESPONSE:", response.data);
-
     const aiText =
-      response?.data?.choices?.[0]?.message?.content ||
-      response?.data?.choices?.[0]?.text;
+      response.data?.choices?.[0]?.message?.content || "No response";
 
-    if (!aiText) {
-      return res.status(500).json({ message: "Empty AI response" });
-    }
-
-    res.json({ response: aiText });
+    return res.status(200).json({ response: aiText });
 
   } catch (error) {
-    console.error("AI FULL ERROR:", error.response?.data || error.message);
-
-    res.status(500).json({
-      message: "AI request failed",
-      error: error.response?.data || error.message,
+    return res.status(500).json({
+      message: "AI failed",
+      error: error.message,
     });
-  }
-};
-exports.savePrompt = async (req, res) => {
-  try {
-    res.json({ message: "Save working ✅" });
-  } catch (error) {
-    res.status(500).json({ message: "Save failed ❌" });
-  }
-};
 
-exports.getHistory = async (req, res) => {
-  try {
-    res.json({ message: "History working ✅" });
-  } catch (error) {
-    res.status(500).json({ message: "Fetch failed ❌" });
   }
-};
+}
+
+export default async function handler(req, res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  // your DB logic
+  return res.status(200).json({ message: "Saved ✅" });
+}
