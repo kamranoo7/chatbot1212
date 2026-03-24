@@ -1,8 +1,5 @@
 import React, { useState } from "react";
-import ReactFlow, {
-  Background,
-  Controls,
-} from "reactflow";
+import ReactFlow, { Background, Controls } from "reactflow";
 import "reactflow/dist/style.css";
 import axios from "axios";
 
@@ -16,9 +13,15 @@ const nodeTypes = {
   resultNode: ResultNode,
 };
 
+// 🔥 Use ENV variable instead of hardcoding
+const API_BASE =
+  process.env.REACT_APP_API_URL ||
+  "https://chatbot1212-y4o8.vercel.app";
+
 export default function App() {
   const [prompt, setPrompt] = useState("");
   const [response, setResponse] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const nodes = [
     {
@@ -31,7 +34,7 @@ export default function App() {
       id: "2",
       type: "resultNode",
       position: { x: 400, y: 100 },
-      data: { response },
+      data: { response: loading ? "Loading... ⏳" : response },
     },
   ];
 
@@ -44,42 +47,72 @@ export default function App() {
     },
   ];
 
-  // 🔹 Call Backend AI
+  /* ================= RUN FLOW ================= */
   const runFlow = async () => {
+    if (!prompt) {
+      alert("Please enter a prompt");
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      const res = await axios.post("https://chatbot1212-y4o8.vercel.app/api/ask-ai", {
+      const res = await axios.post(`${API_BASE}/api/ask-ai`, {
         prompt,
       });
 
       setResponse(res.data.response);
     } catch (err) {
-      console.error(err);
-      alert("Error calling AI");
+      console.error("AI ERROR:", err);
+
+      // 🔥 Retry once (important for Render/Vercel cold start)
+      try {
+        const retry = await axios.post(`${API_BASE}/api/ask-ai`, {
+          prompt,
+        });
+        setResponse(retry.data.response);
+      } catch {
+        setResponse("Server busy or failed. Try again 🚀");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
-  // 🔹 Save to DB
+  /* ================= SAVE DATA ================= */
   const saveData = async () => {
+    if (!prompt || !response) {
+      alert("Nothing to save");
+      return;
+    }
+
     try {
-      await axios.post("https://chatbot1212-y4o8.vercel.app/api/save", {
+      await axios.post(`${API_BASE}/api/save`, {
         prompt,
         response,
       });
 
       alert("Saved to DB ✅");
     } catch (err) {
-      console.error(err);
+      console.error("SAVE ERROR:", err);
       alert("Save failed ❌");
     }
   };
 
   return (
     <div className="app">
+      {/* 🔥 Buttons */}
       <div style={{ position: "absolute", zIndex: 10 }}>
-        <button onClick={runFlow}>Run Flow</button>
-        <button onClick={saveData}>Save</button>
+        <button onClick={runFlow} disabled={loading}>
+          {loading ? "Running..." : "Run Flow"}
+        </button>
+
+        <button onClick={saveData}>
+          Save
+        </button>
       </div>
 
+      {/* 🔥 Flow UI */}
       <ReactFlow
         nodes={nodes}
         edges={edges}
