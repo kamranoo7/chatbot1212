@@ -9,6 +9,7 @@ exports.askAI = async (req, res) => {
       return res.status(400).json({ message: "Prompt is required" });
     }
 
+    
     const response = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",
       {
@@ -22,6 +23,7 @@ exports.askAI = async (req, res) => {
           "X-Title": "AI Flow App",
           "Content-Type": "application/json",
         },
+        timeout: 10000 // 🔥 10 seconds
       }
     );
 
