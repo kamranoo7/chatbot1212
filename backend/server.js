@@ -9,26 +9,7 @@ connectDB();
 const app = express();
 
 /* ================= CORS CONFIG (VERY IMPORTANT) ================= */
-const allowedOrigins = [
-  "http://localhost:3000",
-  "https://chatbot1212-vkj9.vercel.app" // ✅ YOUR REAL URL
-];
-
-app.use(cors({
-  origin: function (origin, callback) {
-    // allow requests with no origin (like Postman)
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.includes(origin) || origin === undefined) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true
-}));
+app.use(cors())
 
 // 🔥 HANDLE PREFLIGHT REQUESTS (VERY IMPORTANT)
 
