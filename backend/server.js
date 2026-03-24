@@ -1,5 +1,5 @@
 const express = require("express");
-
+const cors = require("cors");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 
@@ -8,22 +8,47 @@ connectDB();
 
 const app = express();
 
-// Middleware
-const cors = require("cors");
+/* ================= CORS CONFIG (VERY IMPORTANT) ================= */
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://your-vercel-app.vercel.app" // 🔥 replace after deploy
+];
 
 app.use(cors({
-  origin: "*"
+  origin: function (origin, callback) {
+    // allow requests with no origin (like Postman)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin) || origin === undefined) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
 }));
+
+// 🔥 HANDLE PREFLIGHT REQUESTS (VERY IMPORTANT)
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
+/* ================= MIDDLEWARE ================= */
 app.use(express.json());
 
-// Routes
+/* ================= ROUTES ================= */
 app.use("/api", require("./routes/aiRoutes"));
 
-// Health check
+/* ================= HEALTH CHECK ================= */
 app.get("/", (req, res) => {
   res.send("API is running 🚀");
 });
 
+/* ================= SERVER ================= */
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
