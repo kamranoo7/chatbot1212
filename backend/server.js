@@ -34,7 +34,7 @@ app.use(cors({
 
 /* ================= MIDDLEWARE ================= */
 app.use(express.json());
-app.use(cors());
+
 /* ================= ROUTES ================= */
 app.use("/api", require("./routes/aiRoutes"));
 
