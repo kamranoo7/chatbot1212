@@ -1,0 +1,17 @@
+body {
+    margin: 0;
+    font-family: sans-serif;
+  }
+  
+  .app {
+    height: 100vh;
+  }
+  
+  button {
+    padding: 10px 15px;
+    margin: 10px;
+    border: none;
+    background: black;
+    color: white;
+    cursor: pointer;
+  }
