@@ -47,7 +47,7 @@ export default function App() {
   // 🔹 Call Backend AI
   const runFlow = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/api/ask-ai", {
+      const res = await axios.post("https://chatbot1212-1.onrender.com/api/ask-ai", {
         prompt,
       });
 
