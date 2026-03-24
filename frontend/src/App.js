@@ -61,7 +61,7 @@ export default function App() {
   // 🔹 Save to DB
   const saveData = async () => {
     try {
-      await axios.post("http://localhost:5000/api/save", {
+      await axios.post("https://chatbot1212-y4o8.vercel.app/api/save", {
         prompt,
         response,
       });
